@@ -43,9 +43,34 @@ function loadColorConfig() {
 function loadStats() {
     $.get('/api/stats', function(response) {
         if (response.success) {
+            let lastUpdateText = '暂无';
+            if (response.last_update_at) {
+                const d = new Date(response.last_update_at);
+                if (!isNaN(d.getTime())) {
+                    lastUpdateText = d.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false,
+                    });
+                }
+            }
+
+            const modeMap = {
+                init: '初始化',
+                incremental: '增量',
+                range: '区间',
+            };
+            const modeText = response.last_update_mode ? (modeMap[response.last_update_mode] || response.last_update_mode) : '-';
+            const daysText = (response.last_update_days === 0 || response.last_update_days) ? response.last_update_days : '-';
+
             $('#dataStats').html(`
                 数据范围：${response.min_date} 至 ${response.max_date} 
                 （共 ${response.total_days} 个交易日）
+                ｜最后更新：${lastUpdateText}（${modeText}，${daysText}天）
             `);
         }
     });

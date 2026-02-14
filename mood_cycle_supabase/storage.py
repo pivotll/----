@@ -124,6 +124,42 @@ class DataStorage:
             print(f"[错误] 获取最新日期失败: {e}")
             return None
 
+    def log_update_run(self, mode: str, start_date: Optional[str], end_date: Optional[str], days_count: Optional[int], status: str = 'success', message: Optional[str] = None):
+        if not self.supabase:
+            return
+
+        try:
+            payload = {
+                'mode': mode,
+                'start_date': start_date,
+                'end_date': end_date,
+                'days_count': days_count,
+                'status': status,
+                'message': message,
+            }
+            self.supabase.table('update_log').insert(payload).execute()
+        except Exception as e:
+            print(f"[错误] 写入 update_log 失败: {e}")
+
+    def get_last_update_run(self) -> Optional[dict]:
+        if not self.supabase:
+            return None
+
+        try:
+            res = (
+                self.supabase.table('update_log')
+                .select('run_at,mode,start_date,end_date,days_count,status,message')
+                .order('run_at', desc=True)
+                .limit(1)
+                .execute()
+            )
+            if res.data:
+                return res.data[0]
+            return None
+        except Exception as e:
+            print(f"[错误] 读取 update_log 失败: {e}")
+            return None
+
     def get_data_date_range(self) -> tuple:
         """获取数据的日期范围"""
         if not self.supabase:

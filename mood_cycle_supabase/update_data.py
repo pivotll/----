@@ -73,6 +73,14 @@ class DataUpdater:
         
         # 保存指标
         self.storage.save_emotion_indicators(indicators_list)
+        self.storage.log_update_run(
+            mode='init',
+            start_date=start_date,
+            end_date=end_date,
+            days_count=len(indicators_list),
+            status='success',
+            message=f'初始化完成：{len(indicators_list)}个交易日'
+        )
         
         print("\n" + "=" * 70)
         print("🎉 数据初始化完成！")
@@ -107,6 +115,14 @@ class DataUpdater:
         
         if not trade_dates:
             print("✅ 数据已是最新，无需更新")
+            self.storage.log_update_run(
+                mode='incremental',
+                start_date=start_date,
+                end_date=end_date,
+                days_count=0,
+                status='success',
+                message='无需更新'
+            )
             return
         
         print(f"📅 发现{len(trade_dates)}个缺失交易日，开始更新...")
@@ -154,6 +170,15 @@ class DataUpdater:
         
         # 保存指标
         self.storage.save_emotion_indicators(indicators_list)
+
+        self.storage.log_update_run(
+            mode='incremental',
+            start_date=start_date,
+            end_date=end_date,
+            days_count=len(trade_dates),
+            status='success',
+            message=f'增量更新完成：新增{len(trade_dates)}个交易日'
+        )
         
         print("\n" + "=" * 70)
         print(f"🎉 增量更新完成！新增{len(trade_dates)}个交易日")
@@ -199,6 +224,15 @@ class DataUpdater:
         
         # 保存指标
         self.storage.save_emotion_indicators(indicators_list)
+
+        self.storage.log_update_run(
+            mode='range',
+            start_date=start_date,
+            end_date=end_date,
+            days_count=len(indicators_list),
+            status='success',
+            message=f'区间更新完成：{start_date}~{end_date}，共{len(indicators_list)}个交易日'
+        )
         
         print("\n" + "=" * 70)
         print("🎉 自定义范围更新完成！")

@@ -15,7 +15,6 @@ from datetime import datetime
 import os
 import config
 from storage import DataStorage
-from update_data import DataUpdater
 
 app = Flask(__name__)
 CORS(app)  # 允许跨域请求
@@ -106,6 +105,8 @@ def get_stats():
             })
         
         df = storage.load_emotion_indicators()
+
+        last_run = storage.get_last_update_run() or {}
         
         # 格式化日期
         min_date_str = datetime.strptime(min_date, '%Y%m%d').strftime('%Y-%m-%d')
@@ -115,7 +116,12 @@ def get_stats():
             'success': True,
             'min_date': min_date_str,
             'max_date': max_date_str,
-            'total_days': len(df)
+            'total_days': len(df),
+            'last_update_at': last_run.get('run_at'),
+            'last_update_mode': last_run.get('mode'),
+            'last_update_days': last_run.get('days_count'),
+            'last_update_status': last_run.get('status'),
+            'last_update_message': last_run.get('message'),
         })
         
     except Exception as e:
