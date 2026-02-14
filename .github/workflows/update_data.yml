@@ -5,6 +5,17 @@ on:
     # 每天北京时间 16:30 运行 (UTC 08:30)
     - cron: '30 8 * * *'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "运行模式：incremental / range / init"
+        required: false
+        default: "incremental"
+      start:
+        description: "range 模式开始日期（YYYYMMDD）"
+        required: false
+      end:
+        description: "range 模式结束日期（YYYYMMDD）"
+        required: false
 
 jobs:
   update-data:
@@ -33,4 +44,22 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
+        mode="${{ inputs.mode }}"
+        start="${{ inputs.start }}"
+        end="${{ inputs.end }}"
+
+        if [ -z "$mode" ]; then
+          mode="incremental"
+        fi
+
+        if [ "$mode" = "init" ]; then
+          python update_data.py --init
+        elif [ "$mode" = "range" ]; then
+          if [ -z "$start" ] || [ -z "$end" ]; then
+            echo "range 模式必须提供 start 和 end（YYYYMMDD）" >&2
+            exit 1
+          fi
+          python update_data.py --start "$start" --end "$end"
+        else
           python update_data.py
+        fi

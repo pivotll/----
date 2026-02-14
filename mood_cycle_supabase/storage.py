@@ -9,6 +9,7 @@ import config
 from datetime import datetime
 from typing import List, Dict, Optional
 import os
+import time
 
 class DataStorage:
     """Supabase 数据存储管理器"""
@@ -23,6 +24,32 @@ class DataStorage:
             self.supabase = None
         else:
             self.supabase: Client = create_client(self.url, self.key)
+
+    def _recreate_client(self):
+        if not self.url or not self.key:
+            self.supabase = None
+            return
+        self.supabase = create_client(self.url, self.key)
+
+    def _should_retry(self, exc: Exception) -> bool:
+        msg = str(exc).lower()
+        return any(s in msg for s in ['eof occurred', 'ssl', 'timed out', 'timeout', 'connection reset', 'connection aborted', 'temporary failure'])
+
+    def _run_with_retry(self, fn, max_attempts: int = 5):
+        last_exc = None
+        for attempt in range(1, max_attempts + 1):
+            try:
+                return fn()
+            except Exception as e:
+                last_exc = e
+                if attempt >= max_attempts or not self._should_retry(e):
+                    raise
+                try:
+                    self._recreate_client()
+                except Exception:
+                    pass
+                time.sleep(min(2 ** (attempt - 1), 16))
+        raise last_exc
     
     def save_emotion_indicators(self, indicators_list: List[dict]):
         """
@@ -52,12 +79,16 @@ class DataStorage:
             batch_size = 100
             for i in range(0, len(formatted_data), batch_size):
                 batch = formatted_data[i:i+batch_size]
-                self.supabase.table('emotion_cycle').upsert(batch, on_conflict='trade_date').execute()
+                def do_upsert():
+                    return self.supabase.table('emotion_cycle').upsert(batch, on_conflict='trade_date').execute()
+
+                self._run_with_retry(do_upsert)
             
             print(f"  [OK] 成功保存 {len(formatted_data)} 条记录")
             
         except Exception as e:
             print(f"[错误] 保存到 Supabase 失败: {e}")
+            raise
 
     def load_emotion_indicators(self, start_date: str = None, end_date: str = None) -> pd.DataFrame:
         """
@@ -84,7 +115,7 @@ class DataStorage:
                 query = query.lte('trade_date', end_date)
             
             # 执行查询
-            response = query.execute()
+            response = self._run_with_retry(lambda: query.execute())
             data = response.data
             
             if not data:
@@ -114,7 +145,7 @@ class DataStorage:
         
         try:
             # 获取最晚日期
-            max_res = self.supabase.table('emotion_cycle').select('trade_date').order('trade_date', desc=True).limit(1).execute()
+            max_res = self._run_with_retry(lambda: self.supabase.table('emotion_cycle').select('trade_date').order('trade_date', desc=True).limit(1).execute())
             
             if max_res.data:
                 # Supabase returns YYYY-MM-DD, convert to YYYYMMDD
@@ -137,22 +168,26 @@ class DataStorage:
                 'status': status,
                 'message': message,
             }
-            self.supabase.table('update_log').insert(payload).execute()
+            self._run_with_retry(lambda: self.supabase.table('update_log').insert(payload).execute())
         except Exception as e:
             print(f"[错误] 写入 update_log 失败: {e}")
+            raise
 
     def get_last_update_run(self) -> Optional[dict]:
         if not self.supabase:
             return None
 
         try:
-            res = (
-                self.supabase.table('update_log')
-                .select('run_at,mode,start_date,end_date,days_count,status,message')
-                .order('run_at', desc=True)
-                .limit(1)
-                .execute()
-            )
+            def do_select():
+                return (
+                    self.supabase.table('update_log')
+                    .select('run_at,mode,start_date,end_date,days_count,status,message')
+                    .order('run_at', desc=True)
+                    .limit(1)
+                    .execute()
+                )
+
+            res = self._run_with_retry(do_select)
             if res.data:
                 return res.data[0]
             return None
@@ -167,9 +202,9 @@ class DataStorage:
             
         try:
             # 获取最早日期
-            min_res = self.supabase.table('emotion_cycle').select('trade_date').order('trade_date', desc=False).limit(1).execute()
+            min_res = self._run_with_retry(lambda: self.supabase.table('emotion_cycle').select('trade_date').order('trade_date', desc=False).limit(1).execute())
             # 获取最晚日期
-            max_res = self.supabase.table('emotion_cycle').select('trade_date').order('trade_date', desc=True).limit(1).execute()
+            max_res = self._run_with_retry(lambda: self.supabase.table('emotion_cycle').select('trade_date').order('trade_date', desc=True).limit(1).execute())
             
             min_date = min_res.data[0]['trade_date'].replace('-', '') if min_res.data else None
             max_date = max_res.data[0]['trade_date'].replace('-', '') if max_res.data else None
