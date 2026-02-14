@@ -1,0 +1,198 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%; /* 占满可用宽度，方便展示更多列 */
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+header .subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.controls {
+    padding: 20px 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.filter-group input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+
+.btn-info {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #138496;
+    transform: translateY(-2px);
+}
+
+.stats {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.table-wrapper {
+    padding: 10px 15px; /* 减小左右留白，给表格更多宽度 */
+    overflow-x: auto;
+}
+
+/* DataTables样式定制 */
+#emotionTable {
+    font-size: 13px;
+}
+
+/* 日期列加宽（第1列） */
+#emotionTable thead th:first-child,
+#emotionTable tbody td:first-child {
+    width: 160px;
+    min-width: 160px;
+}
+
+#emotionTable thead th {
+    background: #495057;
+    color: white;
+    font-weight: 600;
+    padding: 12px 8px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+#emotionTable tbody td {
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#emotionTable tbody tr:hover {
+    background: #f1f3f5;
+}
+
+/* 颜色标记 */
+.cell-red-light {
+    background-color: #ffcccc !important;
+}
+
+.cell-red-dark {
+    background-color: #ff9999 !important;
+}
+
+.cell-green-light {
+    background-color: #ccffcc !important;
+}
+
+.cell-green-dark {
+    background-color: #99ff99 !important;
+}
+
+.cell-yellow {
+    background-color: #ffffcc !important;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 24px;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+}
+
+/* Loading状态 */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}

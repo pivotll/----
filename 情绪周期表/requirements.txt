@@ -1,0 +1,17 @@
+# 核心依赖
+tushare>=1.2.89
+pandas>=2.0.0
+numpy>=1.24.0
+
+# 数据存储
+pyarrow>=12.0.0
+
+# Web框架
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Excel导出
+openpyxl>=3.1.0
+
+# 工具库
+python-dateutil>=2.8.0

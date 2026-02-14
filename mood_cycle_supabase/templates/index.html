@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市场情绪周期监控系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 市场情绪周期监控系统</h1>
+            <p class="subtitle">Market Emotion Cycle Monitor</p>
+        </header>
+
+        <div class="controls">
+            <div class="filter-group">
+                <label>开始日期：</label>
+                <input type="date" id="startDate">
+                
+                <label>结束日期：</label>
+                <input type="date" id="endDate">
+                
+                <button onclick="loadData()" class="btn btn-primary">查询</button>
+                <button onclick="exportExcel()" class="btn btn-success">导出Excel</button>
+                <button onclick="loadData()" class="btn btn-info">刷新</button>
+            </div>
+            
+            <div class="stats">
+                <span id="dataStats">数据加载中...</span>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="emotionTable" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>上涨</th>
+                        <th>下跌</th>
+                        <th>涨停</th>
+                        <th>跌停</th>
+                        <th>炸板</th>
+                        <th>炸板率%</th>
+                        <th>首板</th>
+                        <th>二板</th>
+                        <th>三板</th>
+                        <th>3板+</th>
+                        <th>最高板</th>
+                        <th>1进2%</th>
+                        <th>2进3%</th>
+                        <th>3进4%</th>
+                        <th>3板+晋级%</th>
+                        <th>反包</th>
+                        <th>涨停额(亿)</th>
+                        <th>封单额(亿)</th>
+                        <th>涨5%</th>
+                        <th>跌5%</th>
+                        <th>首板红盘%</th>
+                        <th>首板溢价%</th>
+                        <th>二板红盘%</th>
+                        <th>二板溢价%</th>
+                        <th>3板红盘%</th>
+                        <th>3板溢价%</th>
+                        <th>3板+红盘%</th>
+                        <th>3板+溢价%</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
