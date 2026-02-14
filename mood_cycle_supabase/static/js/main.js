@@ -82,9 +82,10 @@ function loadData() {
     const endDate = $('#endDate').val();
     
     // 显示加载中
-    if (dataTable) {
-        dataTable.destroy();
+    if ($.fn.DataTable && $.fn.DataTable.isDataTable('#emotionTable')) {
+        $('#emotionTable').DataTable().clear().destroy();
     }
+    dataTable = null;
     
     $('#tableBody').html('<tr><td colspan="29" class="loading">数据加载中...</td></tr>');
     
@@ -207,6 +208,10 @@ function renderTable(data) {
     });
     
     // 初始化DataTables（固定顺序：日期从小到大，关闭排序）
+    if ($.fn.DataTable && $.fn.DataTable.isDataTable('#emotionTable')) {
+        $('#emotionTable').DataTable().clear().destroy();
+    }
+
     dataTable = $('#emotionTable').DataTable({
         paging: true,
         pageLength: 20,
@@ -214,6 +219,8 @@ function renderTable(data) {
         searching: true,
         ordering: false,           // 关闭所有列排序功能
         order: [[0, 'asc']],       // 日期从小到大（即使ordering=false，也保留语义）
+        destroy: true,
+        retrieve: true,
         language: {
             "lengthMenu": "显示 _MENU_ 条记录",
             "zeroRecords": "没有找到记录",
